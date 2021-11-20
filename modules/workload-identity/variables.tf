@@ -24,9 +24,10 @@ variable "project_id" {
   type        = string
 }
 
-variable "project_id" {
+variable "gcp_project_id" {
   description = "GCP project ID where service account resides; overrides var.project_id"
   type        = string
+  default     = null
 }
 
 variable "gcp_sa_name" {
