@@ -20,6 +20,7 @@ locals {
   gcp_given_name = var.gcp_sa_name != null ? var.gcp_sa_name : substr(var.name, 0, 30)
   gcp_sa_email   = var.use_existing_gcp_sa ? data.google_service_account.cluster_service_account[0].email : google_service_account.cluster_service_account[0].email
   gcp_sa_fqn     = "serviceAccount:${local.gcp_sa_email}"
+  gcp_project_id = var.gcp_project_id != null ? var.gcp_project_id : var.project_id
 
   # This will cause Terraform to block returning outputs until the service account is created
   k8s_given_name       = var.k8s_sa_name != null ? var.k8s_sa_name : var.name
@@ -33,7 +34,7 @@ data "google_service_account" "cluster_service_account" {
   count = var.use_existing_gcp_sa ? 1 : 0
 
   account_id = local.gcp_given_name
-  project    = var.project_id
+  project    = local.gcp_project_id
 }
 
 resource "google_service_account" "cluster_service_account" {
@@ -41,7 +42,7 @@ resource "google_service_account" "cluster_service_account" {
 
   account_id   = local.gcp_given_name
   display_name = substr("GCP SA bound to K8S SA ${local.k8s_given_name}", 0, 100)
-  project      = var.project_id
+  project      = local.gcp_project_id
 }
 
 resource "kubernetes_service_account" "main" {
@@ -81,7 +82,7 @@ resource "google_service_account_iam_member" "main" {
 resource "google_project_iam_member" "workload_identity_sa_bindings" {
   for_each = toset(var.roles)
 
-  project = var.project_id
+  project = var.local.gcp_project_id
   role    = each.value
   member  = local.gcp_sa_fqn
 }

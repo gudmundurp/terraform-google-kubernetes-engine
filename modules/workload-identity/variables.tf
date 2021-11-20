@@ -20,7 +20,12 @@ variable "name" {
 }
 
 variable "project_id" {
-  description = "GCP project ID"
+  description = "GCP project ID where cluster resides"
+  type        = string
+}
+
+variable "project_id" {
+  description = "GCP project ID where service account resides; overrides var.project_id"
   type        = string
 }
 
